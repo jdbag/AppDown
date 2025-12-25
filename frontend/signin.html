@@ -2,6 +2,8 @@
 <html>
 <head>
   <title>AppDown Sign in</title>
+  <!-- تحميل Pi SDK -->
+  <script src="https://sdk.minepi.com/pi-sdk.js"></script>
   <script>
     function signInWithPi() {
       window.Pi.openLogin({
@@ -10,7 +12,7 @@
         },
         onLogin: function(authData) {
           console.log("User logged in:", authData);
-          // أرسل هذه البيانات إلى الـ backend للتحقق
+          alert("Logged in as: " + authData.user.uid);
         },
         onIncompletePaymentFound: function(payment) {
           console.log("Incomplete payment found:", payment);
