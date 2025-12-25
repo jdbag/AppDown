@@ -7,20 +7,36 @@
   <script src="https://sdk.minepi.com/pi-sdk.js"></script>
 </head>
 <body>
+  <!-- الهيدر -->
   <header>
-    <h1>الدفع عبر Pi Network</h1>
+    <div class="logo">AppDown</div>
+    <nav>
+      <a href="index.html">الرئيسية</a>
+      <a href="payment.html">الدفع</a>
+      <a href="signin.html">تسجيل الدخول</a>
+    </nav>
   </header>
-  <main style="text-align:center;">
+
+  <!-- القسم الرئيسي -->
+  <section class="hero">
+    <h1>الدفع عبر Pi Network</h1>
+    <p>قم بالدفع بسهولة وأمان باستخدام Pi</p>
     <button id="payBtn">ادفع الآن</button>
-  </main>
+  </section>
+
+  <!-- الفوتر -->
+  <footer>
+    <p>© 2025 AppDown - جميع الحقوق محفوظة</p>
+  </footer>
 
   <script>
+    // تهيئة Pi SDK
     Pi.init({ version: "2.0" });
 
     document.getElementById("payBtn").addEventListener("click", async () => {
       try {
         const payment = await Pi.createPayment({
-          amount: 1,
+          amount: 1, // قيمة الدفع بالـ Pi
           memo: "شراء من AppDown",
           metadata: { productId: "appdown001" }
         });
