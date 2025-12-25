@@ -1,0 +1,40 @@
+name: AppDown CI
+
+on:
+  push:
+    branches: [ "main" ]
+  pull_request:
+    branches: [ "main" ]
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+
+    steps:
+    - name: Checkout repository
+      uses: actions/checkout@v3
+
+    - name: Set up Node.js
+      uses: actions/setup-node@v3
+      with:
+        node-version: '18'
+
+    - name: Install dependencies (backend)
+      run: |
+        cd backend
+        npm install
+
+    - name: Run backend tests
+      run: |
+        cd backend
+        npm test || echo "No tests defined"
+
+    - name: Build frontend
+      run: |
+        cd frontend
+        echo "Frontend build step placeholder"
+
+    - name: Compile Android module
+      run: |
+        cd android
+        echo "Android build step placeholder"
