@@ -1,0 +1,31 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <title>AppDown Payment</title>
+  <script>
+    function payWithPi() {
+      window.Pi.createPayment({
+        amount: 1,
+        memo: "Purchase AppDown item",
+        metadata: { appId: "AppDown" }
+      }, {
+        onReadyForServerApproval: function(paymentId) {
+          console.log("Payment ready for approval:", paymentId);
+        },
+        onReadyForServerCompletion: function(paymentId, txid) {
+          console.log("Payment completed:", paymentId, txid);
+        },
+        onCancel: function(paymentId) {
+          console.log("Payment cancelled:", paymentId);
+        },
+        onError: function(error, paymentId) {
+          console.error("Payment error:", error, paymentId);
+        }
+      });
+    }
+  </script>
+</head>
+<body>
+  <button onclick="payWithPi()">Pay with Pi</button>
+</body>
+</html>

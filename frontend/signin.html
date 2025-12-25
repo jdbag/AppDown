@@ -1,0 +1,25 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <title>AppDown Sign in</title>
+  <script>
+    function signInWithPi() {
+      window.Pi.openLogin({
+        onReady: function() {
+          console.log("Pi SDK ready");
+        },
+        onLogin: function(authData) {
+          console.log("User logged in:", authData);
+          // أرسل هذه البيانات إلى الـ backend للتحقق
+        },
+        onIncompletePaymentFound: function(payment) {
+          console.log("Incomplete payment found:", payment);
+        }
+      });
+    }
+  </script>
+</head>
+<body>
+  <button onclick="signInWithPi()">Sign in with Pi Network</button>
+</body>
+</html>
