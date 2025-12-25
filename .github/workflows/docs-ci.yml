@@ -1,0 +1,30 @@
+name: Documentation CI
+
+on:
+  push:
+    branches: [ "main" ]
+  pull_request:
+    branches: [ "main" ]
+
+jobs:
+  docs-build:
+    runs-on: ubuntu-latest
+    steps:
+    - uses: actions/checkout@v3
+
+    - name: Generate README summary
+      run: |
+        echo "## Auto-generated Documentation" > DOCS.md
+        echo "" >> DOCS.md
+        echo "This file is generated automatically by GitHub Actions." >> DOCS.md
+        echo "" >> DOCS.md
+        echo "### Project Structure" >> DOCS.md
+        tree -L 2 -I 'node_modules' >> DOCS.md || echo "Install 'tree' locally to see structure"
+
+    - name: Commit and push docs
+      run: |
+        git config --global user.name "github-actions[bot]"
+        git config --global user.email "github-actions[bot]@users.noreply.github.com"
+        git add DOCS.md
+        git commit -m "Update documentation (auto-generated)"
+        git push
