@@ -1,26 +1,20 @@
 <!DOCTYPE html>
-<html>
+<html lang="ar">
 <head>
-  <title>AppDown Sign in</title>
-  <script>
-    function signInWithPi() {
-      window.Pi.openLogin({
-        onReady: function() {
-          console.log("Pi SDK ready");
-        },
-        onLogin: function(authData) {
-          console.log("User logged in:", authData);
-          // authData يحتوي على uid و accessToken
-          // أرسل هذه البيانات إلى الـ backend للتحقق
-        },
-        onIncompletePaymentFound: function(payment) {
-          console.log("Incomplete payment found:", payment);
-        }
-      });
-    }
-  </script>
+  <meta charset="UTF-8">
+  <title>تسجيل الدخول</title>
+  <link rel="stylesheet" href="style.css">
 </head>
 <body>
-  <button onclick="signInWithPi()">Sign in with Pi Network</button>
+  <header>
+    <h1>تسجيل الدخول إلى AppDown</h1>
+  </header>
+  <main style="text-align:center;">
+    <form>
+      <input type="text" placeholder="اسم المستخدم" required><br><br>
+      <input type="password" placeholder="كلمة المرور" required><br><br>
+      <button type="submit">تسجيل الدخول</button>
+    </form>
+  </main>
 </body>
 </html>
