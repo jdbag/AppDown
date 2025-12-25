@@ -14,13 +14,15 @@
       <a href="index.html">الرئيسية</a>
       <a href="payment.html">الدفع</a>
       <a href="signin.html">تسجيل الدخول</a>
+      <a href="privacy.html">الخصوصية</a>
+      <a href="terms.html">الشروط</a>
     </nav>
   </header>
 
   <!-- القسم الرئيسي -->
   <section class="hero">
-    <h1>الدفع عبر Pi Network</h1>
-    <p>قم بالدفع بسهولة وأمان باستخدام Pi</p>
+    <h1>بوابة دفع عالمية</h1>
+    <p>قم بالدفع بسهولة وأمان باستخدام Pi Network</p>
     <button id="payBtn">ادفع الآن</button>
   </section>
 
@@ -30,8 +32,8 @@
   </footer>
 
   <script>
-    // تهيئة Pi SDK
-    Pi.init({ version: "2.0" });
+    // تهيئة Pi SDK مع API Key الخاص بك
+    Pi.init({ version: "2.0", apiKey: "iqzwisvugnbeom4bpqzsjiez9y881yfzsupj13p335ao6gl4hmjky4ewjepenihz" });
 
     document.getElementById("payBtn").addEventListener("click", async () => {
       try {
