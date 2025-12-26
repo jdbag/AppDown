@@ -1,0 +1,42 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Pi Payment Test</title>
+  <script src="https://sdk.minepi.com/pi-sdk.js"></script>
+</head>
+<body>
+  <button id="payBtn">ادفع باستخدام Pi</button>
+
+  <script>
+    // تهيئة SDK
+    Pi.init({ version: "2.0" });
+
+    document.getElementById("payBtn").addEventListener("click", async () => {
+      try {
+        // إنشاء عملية دفع جديدة
+        const payment = await Pi.createPayment({
+          amount: 1,
+          memo: "Test payment",
+          metadata: { orderId: "1234" }
+        });
+
+        console.log("✅ Payment created:", payment);
+        console.log("📌 Payment ID:", payment.identifier);
+
+        // إرسال الـ paymentId إلى السيرفر (Backend)
+        const res = await fetch("/api/approve", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ paymentId: payment.identifier })
+        });
+
+        const data = await res.json();
+        console.log("🔄 Approve response:", data);
+      } catch (err) {
+        console.error("❌ Error creating payment:", err);
+      }
+    });
+  </script>
+</body>
+</html>
