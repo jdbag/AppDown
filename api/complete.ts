@@ -1,6 +1,4 @@
-import type { VercelRequest, VercelResponse } from "@vercel/node";
-
-export default async function handler(req: VercelRequest, res: VercelResponse) {
+export default async function handler(req, res) {
   console.log("🔑 PI_API_KEY =", process.env.PI_API_KEY);
 
   if (req.method !== "POST") {
@@ -20,7 +18,7 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
 
     const data = await response.json();
     return res.status(200).json({ success: true, data });
-  } catch (err: any) {
+  } catch (err) {
     return res.status(500).json({ success: false, error: err.message });
   }
 }
