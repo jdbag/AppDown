@@ -13,7 +13,46 @@
       try {
         // ✅ تأكد أن Pi SDK جاهز
         if (typeof Pi === "undefined" || !Pi.authenticate) {
-          alert("❌ Pi SDK لم يتم تحميله بعد أو غير مدعوم خارج Pi Browser");
+          alert("❌ Pi SDK غير متوفر. افتح الصفحة داخل Pi Browser فقط.");
+          return;
+        }
+
+        // ✅ تهيئة SDK مع App ID الصحيح
+        Pi.init({ version: "2.0", appId: "appdown-50df9de824e71a51" });
+
+        // ✅ المصادقة مع صلاحية الدفع
+        const authResult = await Pi.authenticate({
+          scopes: ["username", "payments"]
+        });
+
+        console.log("✅ Auth result:", authResult);
+
+        // ✅ إنشاء الدفع
+        const payment = await Pi.createPayment({
+          amount: 1,
+          memo: "Test payment",
+          metadata: { orderId: "1234" }
+        });
+
+        // ✅ نافذة منبثقة تعرض الـ Payment ID
+        alert("📌 Payment ID: " + payment.identifier);
+cat > ~/AppDown/public/payment.html <<'EOF'
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Pi Payment Test</title>
+  <script src="https://sdk.minepi.com/pi-sdk.js"></script>
+</head>
+<body>
+  <button id="payBtn">ادفع باستخدام Pi</button>
+
+  <script>
+    document.getElementById("payBtn").addEventListener("click", async () => {
+      try {
+        // ✅ تأكد أن Pi SDK جاهز
+        if (typeof Pi === "undefined" || !Pi.authenticate) {
+          alert("❌ Pi SDK غير متوفر. افتح الصفحة داخل Pi Browser فقط.");
           return;
         }
 
