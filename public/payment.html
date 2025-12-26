@@ -9,15 +9,23 @@
   <button id="payBtn">ادفع باستخدام Pi</button>
 
   <script>
-    // ضع الـ App ID الصحيح من Pi Developer Portal
-    Pi.init({ version: "2.0", appId: "YOUR_APP_ID" });
-
     document.getElementById("payBtn").addEventListener("click", async () => {
       try {
+        // ✅ تأكد أن Pi SDK جاهز
+        if (typeof Pi === "undefined") {
+          alert("❌ Pi SDK لم يتم تحميله بعد");
+          return;
+        }
+
+        // ✅ تهيئة SDK مع App ID الصحيح
+        Pi.init({ version: "2.0", appId: "YOUR_APP_ID" });
+
         // ✅ المصادقة مع صلاحية الدفع (scopes كمصفوفة نصوص)
         const authResult = await Pi.authenticate({
           scopes: ["username", "payments"]
         });
+
+        console.log("✅ Auth result:", authResult);
 
         // ✅ إنشاء الدفع
         const payment = await Pi.createPayment({
