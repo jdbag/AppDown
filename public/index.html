@@ -1,0 +1,45 @@
+<!DOCTYPE html>
+<html lang="ar">
+<head>
+  <meta charset="UTF-8">
+  <title>اختبار Pi SDK</title>
+</head>
+<body>
+  <h1>واجهة دفع Pi</h1>
+
+<script src="https://sdk.minepi.com/pi-sdk.js"></script>
+<script>Pi.init({ version: "2.0" });</script>
+<script>
+async function login(){
+  try{
+    const scopes=["payments"];
+    const user=await Pi.authenticate(scopes,onIncompletePaymentFound);
+    console.log("✅ المستخدم:",user);
+  }catch(err){
+    console.error("❌ خطأ في تسجيل الدخول:",err);
+  }
+}
+function onIncompletePaymentFound(payment){
+  console.log("⚠️ دفعة غير مكتملة:",payment);
+}
+</script>
+<button onclick="createPayment()">💳 ادفع الآن</button>
+<script>
+async function createPayment(){
+  try{
+    const paymentData={amount:10,memo:"شراء منتج تجريبي",metadata:{productId:"demo-001"}};
+    const payment=await Pi.createPayment(paymentData,{
+      onReadyForServerApproval:pid=>console.log("🔹 جاهز للموافقة:",pid),
+      onReadyForServerCompletion:pid=>console.log("🔹 جاهز للإكمال:",pid),
+      onCancel:pid=>console.log("❌ تم إلغاء الدفع:",pid),
+      onError:(err,pid)=>console.error("⚠️ خطأ:",err,pid)
+    });
+    console.log("✅ الدفع أنشئ:",payment);
+  }catch(err){
+    console.error("❌ خطأ في إنشاء الدفع:",err);
+  }
+}
+</script>
+<script>window.onload=login;</script>
+</body>
+</html>
