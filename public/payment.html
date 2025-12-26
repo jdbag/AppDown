@@ -17,8 +17,8 @@
           return;
         }
 
-        // ✅ تهيئة SDK مع App ID الصحيح
-        Pi.init({ version: "2.0", appId: "appdown-50df9de824e71a51" });
+        // ✅ تهيئة SDK مع App ID الجديد
+        Pi.init({ version: "2.0", appId: "appdown-01bd6267a69c93f6" });
 
         // ✅ المصادقة مع صلاحية الدفع
         const authResult = await Pi.authenticate({
@@ -31,46 +31,11 @@
         const payment = await Pi.createPayment({
           amount: 1,
           memo: "Test payment",
-          metadata: { orderId: "1234" }
-        });
-
-        // ✅ نافذة منبثقة تعرض الـ Payment ID
-        alert("📌 Payment ID: " + payment.identifier);
-cat > ~/AppDown/public/payment.html <<'EOF'
-<!DOCTYPE html>
-<html lang="en">
-<head>
-  <meta charset="UTF-8">
-  <title>Pi Payment Test</title>
-  <script src="https://sdk.minepi.com/pi-sdk.js"></script>
-</head>
-<body>
-  <button id="payBtn">ادفع باستخدام Pi</button>
-
-  <script>
-    document.getElementById("payBtn").addEventListener("click", async () => {
-      try {
-        // ✅ تأكد أن Pi SDK جاهز
-        if (typeof Pi === "undefined" || !Pi.authenticate) {
-          alert("❌ Pi SDK غير متوفر. افتح الصفحة داخل Pi Browser فقط.");
-          return;
-        }
-
-        // ✅ تهيئة SDK مع App ID الصحيح
-        Pi.init({ version: "2.0", appId: "appdown-50df9de824e71a51" });
-
-        // ✅ المصادقة مع صلاحية الدفع
-        const authResult = await Pi.authenticate({
-          scopes: ["username", "payments"]
-        });
-
-        console.log("✅ Auth result:", authResult);
-
-        // ✅ إنشاء الدفع
-        const payment = await Pi.createPayment({
-          amount: 1,
-          memo: "Test payment",
-          metadata: { orderId: "1234" }
+          metadata: { 
+            orderId: "1234",
+            validationKey: "5b224bec7a9cdd0422cac95a9c3a3eba8e617245c098f40919f91626a513e776ace738abf011813637f96227c5a54bb49f0d89aaf1bac3a7d0794b684579927b",
+            apiKey: "do5pbqs2fnb349qjphowr2bfnjwo30ijysr3bmbcchicldh38cqlegxwyiupcgni"
+          }
         });
 
         // ✅ نافذة منبثقة تعرض الـ Payment ID
