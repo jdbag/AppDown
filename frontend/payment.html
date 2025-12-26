@@ -2,9 +2,9 @@
 <html lang="ar">
 <head>
   <meta charset="UTF-8">
-  <title>الدفع عبر Pi Network</title>
+  <title>الدفع عبر Stripe</title>
   <link rel="stylesheet" href="style.css">
-  <script src="https://sdk.minepi.com/pi-sdk.js"></script>
+  <script src="https://js.stripe.com/v3/"></script>
 </head>
 <body>
   <!-- الهيدر -->
@@ -22,24 +22,8 @@
   <!-- القسم الرئيسي -->
   <section class="hero">
     <h1>بوابة دفع عالمية</h1>
-    <p>قم بالدفع بسهولة وأمان باستخدام Pi Network</p>
-    <button id="payBtn">ادفع الآن</button>
-  </section>
-
-  <!-- قسم المميزات -->
-  <section class="features">
-    <div class="feature">
-      <h2>أمان عالي</h2>
-      <p>حماية كاملة للمعاملات عبر Pi.</p>
-    </div>
-    <div class="feature">
-      <h2>سهولة الاستخدام</h2>
-      <p>واجهة بسيطة مثل المواقع العالمية.</p>
-    </div>
-    <div class="feature">
-      <h2>تكامل كامل</h2>
-      <p>متوافق مع Pi SDK الرسمي.</p>
-    </div>
+    <p>قم بالدفع بسهولة وأمان باستخدام Stripe</p>
+    <button id="checkoutBtn">ادفع الآن</button>
   </section>
 
   <!-- الفوتر -->
@@ -51,17 +35,22 @@
   </footer>
 
   <script>
-    // تهيئة Pi SDK مع API Key الخاص بك
-    Pi.init({ version: "2.0", apiKey: "iqzwisvugnbeom4bpqzsjiez9y881yfzsupj13p335ao6gl4hmjky4ewjepenihz" });
+    const stripe = Stripe("ضع_هنا_المفتاح_العام_من_Stripe"); // المفتاح العام من حسابك في Stripe
 
-    document.getElementById("payBtn").addEventListener("click", async () => {
+    document.getElementById("checkoutBtn").addEventListener("click", async () => {
       try {
-        const payment = await Pi.createPayment({
-          amount: 1, // قيمة الدفع بالـ Pi
-          memo: "شراء من AppDown",
-          metadata: { productId: "appdown001" }
+        // استدعاء الـ backend لإنشاء جلسة دفع
+        const response = await fetch("http://192.168.1.7:3000/checkout", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" }
         });
-        console.log("تم إنشاء الدفع:", payment);
+        const data = await response.json();
+
+        // إعادة التوجيه إلى صفحة الدفع
+        const result = await stripe.redirectToCheckout({ sessionId: data.id });
+        if (result.error) {
+          alert(result.error.message);
+        }
       } catch (err) {
         console.error("خطأ في الدفع:", err);
       }
