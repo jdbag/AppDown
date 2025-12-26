@@ -14,20 +14,22 @@
 
     document.getElementById("payBtn").addEventListener("click", async () => {
       try {
-        // المصادقة مع صلاحية الدفع
-        const authResult = await Pi.authenticate({ scopes: ["username", "payments"] });
+        // ✅ المصادقة مع صلاحية الدفع (scopes كمصفوفة نصوص)
+        const authResult = await Pi.authenticate({
+          scopes: ["username", "payments"]
+        });
 
-        // إنشاء الدفع
+        // ✅ إنشاء الدفع
         const payment = await Pi.createPayment({
           amount: 1,
           memo: "Test payment",
           metadata: { orderId: "1234" }
         });
 
-        // نافذة منبثقة تعرض الـ Payment ID
+        // ✅ نافذة منبثقة تعرض الـ Payment ID
         alert("📌 Payment ID: " + payment.identifier);
 
-        // إرسال الـ Payment ID للـ Backend
+        // ✅ إرسال الـ Payment ID للـ Backend
         await fetch("/api/approve", {
           method: "POST",
           headers: { "Content-Type": "application/json" },
