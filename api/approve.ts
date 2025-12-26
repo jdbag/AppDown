@@ -1,3 +1,4 @@
+console.log("🔑 ENV VARS =", process.env);
 console.log("🔑 PI_API_KEY =", process.env.PI_API_KEY);
 console.log("🔑 PI_API_KEY =", process.env.PI_API_KEY);
 console.log("🔑 PI_API_KEY =", process.env.PI_API_KEY);
