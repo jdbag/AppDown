@@ -1,6 +1,7 @@
 console.log("🔑 PI_API_KEY =", process.env.PI_API_KEY);
 console.log("🔑 PI_API_KEY =", process.env.PI_API_KEY);
 console.log("🔑 PI_API_KEY =", process.env.PI_API_KEY);
+console.log("🔑 PI_API_KEY =", process.env.PI_API_KEY);
 import type { VercelRequest, VercelResponse } from "@vercel/node";
 
 export default async function handler(req: VercelRequest, res: VercelResponse) {
