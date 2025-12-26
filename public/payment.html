@@ -14,14 +14,20 @@
 
     document.getElementById("payBtn").addEventListener("click", async () => {
       try {
+        // المصادقة مع صلاحية الدفع
+        const authResult = await Pi.authenticate({ scopes: ["username", "payments"] });
+
+        // إنشاء الدفع
         const payment = await Pi.createPayment({
           amount: 1,
           memo: "Test payment",
           metadata: { orderId: "1234" }
         });
 
+        // نافذة منبثقة تعرض الـ Payment ID
         alert("📌 Payment ID: " + payment.identifier);
 
+        // إرسال الـ Payment ID للـ Backend
         await fetch("/api/approve", {
           method: "POST",
           headers: { "Content-Type": "application/json" },
@@ -29,6 +35,7 @@
         });
       } catch (err) {
         alert("❌ Error: " + err.message);
+        console.error("❌ Error creating payment:", err);
       }
     });
   </script>
