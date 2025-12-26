@@ -12,15 +12,15 @@
     document.getElementById("payBtn").addEventListener("click", async () => {
       try {
         // ✅ تأكد أن Pi SDK جاهز
-        if (typeof Pi === "undefined") {
-          alert("❌ Pi SDK لم يتم تحميله بعد");
+        if (typeof Pi === "undefined" || !Pi.authenticate) {
+          alert("❌ Pi SDK لم يتم تحميله بعد أو غير مدعوم خارج Pi Browser");
           return;
         }
 
         // ✅ تهيئة SDK مع App ID الصحيح
-        Pi.init({ version: "2.0", appId: "YOUR_APP_ID" });
+        Pi.init({ version: "2.0", appId: "appdown-50df9de824e71a51" });
 
-        // ✅ المصادقة مع صلاحية الدفع (scopes كمصفوفة نصوص)
+        // ✅ المصادقة مع صلاحية الدفع
         const authResult = await Pi.authenticate({
           scopes: ["username", "payments"]
         });
