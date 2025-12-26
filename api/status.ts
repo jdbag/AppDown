@@ -1,6 +1,4 @@
 export default async function handler(req, res) {
-  console.log("🔑 PI_API_KEY =", process.env.PI_API_KEY);
-
   if (req.method !== "POST") {
     return res.status(405).json({ success: false, error: "Method not allowed" });
   }
@@ -16,7 +14,14 @@ export default async function handler(req, res) {
       }
     });
 
-    const data = await response.json();
+    const text = await response.text();
+    let data;
+    try {
+      data = JSON.parse(text);
+    } catch {
+      data = { rawResponse: text };
+    }
+
     return res.status(200).json({ success: true, data });
   } catch (err) {
     return res.status(500).json({ success: false, error: err.message });
