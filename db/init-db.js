@@ -1,0 +1,1 @@
+const fs=require('fs');const pool=require('../storage/pool');async function init(){const conn=await pool.getConnection();const users=fs.readFileSync('./schema/users.sql','utf8');const payments=fs.readFileSync('./schema/payments.sql','utf8');await conn.query(users);await conn.query(payments);conn.release();console.log('Database initialized');}init();
