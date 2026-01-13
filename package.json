@@ -1,17 +1,8 @@
-{
-  "name": "appdown-api",
-  "version": "0.0.0",
-  "private": true,
-  "scripts": {
-    "start": "node ./bin/www"
-  },
-  "dependencies": {
-    "cookie-parser": "~1.4.4",
-    "debug": "~2.6.9",
-    "express": "~4.16.1",
-    "http-errors": "~1.6.3",
-    "jade": "~1.11.0",
-    "mariadb": "^3.4.5",
-    "morgan": "~1.9.1"
-  }
+"scripts": {
+  "dev": "vite",
+  "build": "vite build",
+  "preview": "vite preview"
+},
+"devDependencies": {
+  "vite": "^5.0.0"
 }
