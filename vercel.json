@@ -1,0 +1,9 @@
+{
+  "redirects": [
+    {
+      "source": "/(.*)",
+      "destination": "https://appdownafbbefb2840.pinet.com/$1",
+      "permanent": true
+    }
+  ]
+}
