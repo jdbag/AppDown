@@ -1,89 +1,78 @@
-// public/js/pi-payment.js
+// public/js/pi-payment.js - نسخة عملية يناير 2026
 
-window.Pi = window.Pi || {};
+let piUser = null;
 
-let authenticatedUser = null;
+async function initializePi() {
+    try {
+        Pi.init({ version: "2.0", sandbox: true });  // ← غيّر false للإنتاج لاحقاً
 
-async function initPi() {
-  try {
-    Pi.init({ version: "2.0", sandbox: process.env.PI_SANDBOX !== 'false' });
-
-    const scopes = ['username', 'payments'];
-
-    authenticatedUser = await Pi.authenticate(scopes, onIncompletePaymentFound);
-
-    console.log('تم المصادقة بنجاح:', authenticatedUser.user.username);
-    const btn = document.getElementById('pi-pay-button');
-    if (btn) btn.disabled = false;
-
-  } catch (err) {
-    console.error('فشل المصادقة مع Pi:', err);
-  }
-}
-
-function onIncompletePaymentFound(payment) {
-  console.warn('وجد دفع غير مكتمل:', payment);
-  // يمكنك محاولة إكماله أو إلغاؤه هنا
-}
-
-async function createPiPayment(amount = 5, memo = "شراء منتج من AppDown") {
-  if (!authenticatedUser) {
-    alert('يرجى تسجيل الدخول عبر Pi أولاً');
-    return;
-  }
-
-  const paymentData = {
-    amount: Number(amount),
-    memo: memo,
-    metadata: { product: "test-product", userId: authenticatedUser.user.uid }
-  };
-
-  const callbacks = {
-    onReadyForServerApproval: async (paymentId) => {
-      try {
-        const res = await fetch('/api/payment/approve', {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({ paymentId })
+        piUser = await Pi.authenticate(['username', 'payments'], (payment) => {
+            console.warn("دفع غير مكتمل موجود:", payment);
+            // يمكنك معالجته هنا لاحقاً
         });
-        const data = await res.json();
-        console.log('نتيجة الموافقة:', data);
-      } catch (err) {
-        console.error('فشل طلب الموافقة:', err);
-      }
-    },
 
-    onReadyForServerCompletion: async (paymentId, txid) => {
-      try {
-        const res = await fetch('/api/payment/complete', {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({ paymentId, txid })
-        });
-        const data = await res.json();
-        if (data.success) {
-          alert(`تم الدفع بنجاح!\nTxID: ${txid}`);
-          // هنا: توجيه المستخدم لتحميل المنتج أو عرض رسالة نجاح
-        }
-      } catch (err) {
-        alert('حدث خطأ أثناء إكمال الدفع');
-      }
-    },
-
-    onCancel: () => alert('تم إلغاء عملية الدفع'),
-    onError: (error) => alert('خطأ في عملية الدفع: ' + error.message)
-  };
-
-  try {
-    await Pi.createPayment(paymentData, callbacks);
-  } catch (err) {
-    console.error('فشل إنشاء الدفع:', err);
-    alert('تعذر بدء عملية الدفع');
-  }
+        console.log("تم تسجيل الدخول بنجاح:", piUser.user.username);
+        const btn = document.getElementById("pi-pay-button");
+        if (btn) btn.disabled = false;
+    } catch (err) {
+        console.error("فشل تهيئة / مصادقة Pi:", err);
+        alert("تعذر الاتصال بمحفظة Pi");
+    }
 }
 
-// تشغيل التهيئة عند تحميل الصفحة
-document.addEventListener('DOMContentLoaded', initPi);
+async function startPiPayment(amount = 10, memo = "اختبار شراء من AppDown") {
+    if (!piUser) {
+        alert("يرجى الانتظار حتى يكتمل تسجيل الدخول");
+        return;
+    }
 
-// مثال على الاستخدام في HTML:
-// <button id="pi-pay-button" disabled onclick="createPiPayment(10, 'شراء كتاب')">ادفع 10 π</button>
+    const paymentData = {
+        amount: Number(amount),
+        memo: memo,
+        metadata: { source: "AppDown", test: true }
+    };
+
+    const paymentCallbacks = {
+        onReadyForServerApproval: async function(paymentId) {
+            try {
+                const response = await fetch("/api/payment/approve", {
+                    method: "POST",
+                    headers: { "Content-Type": "application/json" },
+                    body: JSON.stringify({ paymentId })
+                });
+                console.log("موافقة من السيرفر:", await response.json());
+            } catch (e) {
+                console.error("فشل طلب الموافقة:", e);
+            }
+        },
+
+        onReadyForServerCompletion: async function(paymentId, txid) {
+            try {
+                const response = await fetch("/api/payment/complete", {
+                    method: "POST",
+                    headers: { "Content-Type": "application/json" },
+                    body: JSON.stringify({ paymentId, txid })
+                });
+                const result = await response.json();
+                if (result.success) {
+                    alert(`تم الدفع بنجاح!\nمعاملة: ${txid}`);
+                }
+            } catch (e) {
+                alert("حدث خطأ أثناء إكمال الدفع");
+            }
+        },
+
+        onCancel: () => alert("تم إلغاء الدفع"),
+        onError: (error) => alert("خطأ في الدفع: " + (error.message || "غير معروف"))
+    };
+
+    try {
+        await Pi.createPayment(paymentData, paymentCallbacks);
+    } catch (err) {
+        console.error("خطأ إنشاء دفع:", err);
+        alert("تعذر بدء عملية الدفع");
+    }
+}
+
+// تشغيل التهيئة فور تحميل الصفحة
+document.addEventListener("DOMContentLoaded", initializePi);
