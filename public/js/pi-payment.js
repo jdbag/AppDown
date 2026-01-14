@@ -1,49 +1,78 @@
-// public/js/pi-payment.js - Pi Network Payment Button
+// public/js/pi-payment.js - نسخة عملية يناير 2026
 
-const Pi = window.Pi;
+let piUser = null;
 
-document.addEventListener('DOMContentLoaded', async function() {
-  Pi.init({ version: "2.0", sandbox: true }); // غيّر إلى false للـ Mainnet لاحقًا
+async function initializePi() {
+    try {
+        Pi.init({ version: "2.0", sandbox: true });  // ← غيّر false للإنتاج لاحقاً
 
-  try {
-    const scopes = ['payments'];
-    await Pi.authenticate(scopes, () => {});
-    const btn = document.getElementById('pi-pay-btn');
-    if (btn) btn.disabled = false;
-  } catch (err) {
-    console.error('Authentication failed', err);
-  }
-});
+        piUser = await Pi.authenticate(['username', 'payments'], (payment) => {
+            console.warn("دفع غير مكتمل موجود:", payment);
+            // يمكنك معالجته هنا لاحقاً
+        });
 
-async function handlePiPayment(amount = 5, memo = "اختبار شراء") {
-  const paymentData = {
-    amount: amount,
-    memo: memo,
-    metadata: { item: "test-product" }
-  };
-
-  const callbacks = {
-    onReadyForServerApproval: paymentId => {
-      fetch('/api/payment/approve', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ paymentId })
-      });
-    },
-    onReadyForServerCompletion: (paymentId, txid) => {
-      fetch('/api/payment/complete', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ paymentId, txid })
-      }).then(() => alert('تم الدفع بنجاح! TxID: ' + txid));
-    },
-    onCancel: () => alert('تم إلغاء الدفع'),
-    onError: err => alert('خطأ: ' + err.message)
-  };
-
-  try {
-    await Pi.createPayment(paymentData, callbacks);
-  } catch (err) {
-    console.error('Payment error', err);
-  }
+        console.log("تم تسجيل الدخول بنجاح:", piUser.user.username);
+        const btn = document.getElementById("pi-pay-button");
+        if (btn) btn.disabled = false;
+    } catch (err) {
+        console.error("فشل تهيئة / مصادقة Pi:", err);
+        alert("تعذر الاتصال بمحفظة Pi");
+    }
 }
+
+async function startPiPayment(amount = 10, memo = "اختبار شراء من AppDown") {
+    if (!piUser) {
+        alert("يرجى الانتظار حتى يكتمل تسجيل الدخول");
+        return;
+    }
+
+    const paymentData = {
+        amount: Number(amount),
+        memo: memo,
+        metadata: { source: "AppDown", test: true }
+    };
+
+    const paymentCallbacks = {
+        onReadyForServerApproval: async function(paymentId) {
+            try {
+                const response = await fetch("/api/payment/approve", {
+                    method: "POST",
+                    headers: { "Content-Type": "application/json" },
+                    body: JSON.stringify({ paymentId })
+                });
+                console.log("موافقة من السيرفر:", await response.json());
+            } catch (e) {
+                console.error("فشل طلب الموافقة:", e);
+            }
+        },
+
+        onReadyForServerCompletion: async function(paymentId, txid) {
+            try {
+                const response = await fetch("/api/payment/complete", {
+                    method: "POST",
+                    headers: { "Content-Type": "application/json" },
+                    body: JSON.stringify({ paymentId, txid })
+                });
+                const result = await response.json();
+                if (result.success) {
+                    alert(`تم الدفع بنجاح!\nمعاملة: ${txid}`);
+                }
+            } catch (e) {
+                alert("حدث خطأ أثناء إكمال الدفع");
+            }
+        },
+
+        onCancel: () => alert("تم إلغاء الدفع"),
+        onError: (error) => alert("خطأ في الدفع: " + (error.message || "غير معروف"))
+    };
+
+    try {
+        await Pi.createPayment(paymentData, paymentCallbacks);
+    } catch (err) {
+        console.error("خطأ إنشاء دفع:", err);
+        alert("تعذر بدء عملية الدفع");
+    }
+}
+
+// تشغيل التهيئة فور تحميل الصفحة
+document.addEventListener("DOMContentLoaded", initializePi);
