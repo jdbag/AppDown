@@ -3,18 +3,24 @@ html(lang="ar" dir="rtl")
   head
     meta(charset="UTF-8")
     meta(name="viewport" content="width=device-width, initial-scale=1.0")
-    title AppDown - متجر بي نتورك
-    link(rel="stylesheet" href="/css/style.css")  // إذا كان عندك
+    title AppDown - متجر يدعم Pi Network
+    style.
+      body { font-family: Arial, sans-serif; text-align: center; padding: 50px; background: #f4f4f4; }
+      h1 { color: #6200ea; }
+      .product { margin: 40px auto; max-width: 400px; padding: 20px; background: white; border-radius: 10px; box-shadow: 0 4px 8px rgba(0,0,0,0.1); }
+      button { background: #6200ea; color: white; border: none; padding: 15px 30px; font-size: 18px; border-radius: 8px; cursor: pointer; margin-top: 20px; }
+      button:disabled { background: #ccc; cursor: not-allowed; }
 
   body
-    h1 مرحباً في AppDown
-    p متجر بسيط يدعم الدفع بـ Pi Network
+    h1 مرحباً بك في AppDown
 
     .product
       h2 منتج اختباري
       p السعر: 10 π
-      button#pi-pay-button(disabled onclick="startPiPayment(10, 'شراء منتج اختباري')")
+      p حالة الاتصال: جاري التحميل...
+
+      button#pi-pay-button(disabled type="button" onclick="startPiPayment(10, 'اختبار شراء من AppDown')")
         ادفع 10 π
 
     script(src="https://sdk.minepi.com/pi-sdk.js")
-    script(src="/js/pi-payment.js")
+    script(src="/pi-payment.js")   // ← إذا كان في الجذر، أو /js/pi-payment.js لو نقلته
