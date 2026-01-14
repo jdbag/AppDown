@@ -6,16 +6,16 @@ html(lang="ar" dir="rtl")
     title AppDown - متجر Pi Network
 
     style.
-      body {font-family: system-ui; text-align:center; padding:40px; background:#f8f9fa; direction:rtl;}
-      h1 {color:#6f42c1;}
-      .box {max-width:500px; margin:auto; background:white; padding:30px; border-radius:12px; box-shadow:0 4px 12px rgba(0,0,0,0.1);}
-      button {background:#6f42c1; color:white; border:none; padding:14px 32px; font-size:18px; border-radius:8px; cursor:pointer; margin-top:20px;}
-      button:disabled {background:#ccc; cursor:not-allowed;}
+      body { font-family: system-ui, sans-serif; text-align: center; padding: 40px; background: #f8f9fa; direction: rtl; }
+      h1 { color: #6f42c1; }
+      .box { max-width: 500px; margin: auto; background: white; padding: 30px; border-radius: 12px; box-shadow: 0 4px 12px rgba(0,0,0,0.1); }
+      button { background: #6f42c1; color: white; border: none; padding: 14px 32px; font-size: 18px; border-radius: 8px; cursor: pointer; margin-top: 20px; }
+      button:disabled { background: #ccc; cursor: not-allowed; }
 
   body
     .box
       h1 مرحباً في AppDown
-      p متجر بسيط يدعم الدفع بـ Pi
+      p متجر بسيط يدعم الدفع بـ Pi Network
 
       .product
         h3 منتج اختباري
@@ -24,7 +24,7 @@ html(lang="ar" dir="rtl")
       button#pi-pay-button(disabled type="button" onclick="startPiPayment(10, 'اختبار شراء')")
         ادفع 10 π
 
-      p#status حالة: جاري الاتصال...
+      p#status حالة: جاري الاتصال بمحفظة Pi...
 
     script(src="https://sdk.minepi.com/pi-sdk.js")
-    script(src="/pi-payment.js")
+    script(src="/js/pi-payment.js")
