@@ -1,15 +1,80 @@
-.container
-  h1 مرحباً في AppDown
-  p متجر بسيط يدعم الدفع بـ Pi Network
+doctype html
+html(lang="ar" dir="rtl")
+  head
+    meta(charset="UTF-8")
+    meta(name="viewport" content="width=device-width, initial-scale=1.0")
+    title AppDown - متجر يدعم الدفع بـ Pi Network
 
-  .product
-    h3 منتج اختباري
-    p السعر: 10 π
+    // أنماط أساسية بسيطة ومتجاوبة
+    style.
+      body {
+        font-family: system-ui, -apple-system, sans-serif;
+        margin: 0;
+        padding: 20px;
+        background: #f8f9fa;
+        color: #333;
+        direction: rtl;
+        text-align: center;
+      }
+      .container {
+        max-width: 500px;
+        margin: 40px auto;
+        background: white;
+        padding: 30px;
+        border-radius: 16px;
+        box-shadow: 0 8px 24px rgba(0,0,0,0.12);
+      }
+      h1 {
+        color: #6f42c1;
+        margin-bottom: 8px;
+      }
+      .product {
+        margin: 30px 0;
+        padding: 20px;
+        background: #f8f5ff;
+        border-radius: 12px;
+      }
+      button {
+        background: #6f42c1;
+        color: white;
+        border: none;
+        padding: 16px 40px;
+        font-size: 1.1rem;
+        border-radius: 12px;
+        cursor: pointer;
+        transition: all 0.25s ease;
+        margin-top: 15px;
+      }
+      button:hover:not(:disabled) {
+        background: #5a32a3;
+        transform: translateY(-2px);
+      }
+      button:disabled {
+        background: #ccc;
+        cursor: not-allowed;
+      }
+      #status {
+        color: #666;
+        font-size: 0.95rem;
+        margin-top: 15px;
+      }
 
-  button#pi-pay-button(disabled type="button" onclick="startPiPayment(10, 'اختبار شراء')")
-    ادفع 10 π
+  body
+    .container
+      h1 مرحباً بك في AppDown
 
-  p حالة: جاري الاتصال بمحفظة Pi...
+      p متجر بسيط يدعم الدفع بـ Pi Network (π)
 
-script(src="https://sdk.minepi.com/pi-sdk.js")
-script(src="/js/pi-payment.js")
+      .product
+        h3 منتج اختباري
+        p السعر: 10 π
+        small (اختبار في وضع Sandbox)
+
+      button#pi-pay-button(disabled type="button" onclick="startPiPayment(10, 'اختبار شراء من AppDown')")
+        ادفع 10 π
+
+      p#status حالة: جاري الاتصال بمحفظة Pi...
+
+      // رسالة مساعدة للمستخدم
+      p.small style="margin-top:40px; color:#777; font-size:0.9rem;"
+        ملاحظة: يجب فتح الموقع داخل ت
