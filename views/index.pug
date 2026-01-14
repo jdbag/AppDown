@@ -1,0 +1,20 @@
+doctype html
+html(lang="ar" dir="rtl")
+  head
+    meta(charset="UTF-8")
+    meta(name="viewport" content="width=device-width, initial-scale=1.0")
+    title AppDown - متجر بي نتورك
+    link(rel="stylesheet" href="/css/style.css")  // إذا كان عندك
+
+  body
+    h1 مرحباً في AppDown
+    p متجر بسيط يدعم الدفع بـ Pi Network
+
+    .product
+      h2 منتج اختباري
+      p السعر: 10 π
+      button#pi-pay-button(disabled onclick="startPiPayment(10, 'شراء منتج اختباري')")
+        ادفع 10 π
+
+    script(src="https://sdk.minepi.com/pi-sdk.js")
+    script(src="/js/pi-payment.js")
