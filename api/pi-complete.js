@@ -1,10 +1,3 @@
-/**
- * api/pi-complete.js
- * Server-Side Completion لـ Pi Network
- * يُستدعى بعد onReadyForServerCompletion(paymentId, txid)
- * يرسل txid إلى Pi لإغلاق الدفع وتأكيد النجاح
- */
-
 exports.handler = async (event) => {
   // ── CORS Preflight
   if (event.httpMethod === 'OPTIONS') {
