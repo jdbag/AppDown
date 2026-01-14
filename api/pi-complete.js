@@ -1,5 +1,5 @@
 exports.handler = async (event) => {
-  // ── CORS Preflight
+  // CORS Preflight
   if (event.httpMethod === 'OPTIONS') {
     return {
       statusCode: 200,
@@ -9,54 +9,41 @@ exports.handler = async (event) => {
         'Access-Control-Allow-Methods': 'POST, OPTIONS',
         'Access-Control-Max-Age': '86400',
       },
-      body: '',
+      body: ''
     };
   }
 
-  // فقط POST مسموح
   if (event.httpMethod !== 'POST') {
     return {
       statusCode: 405,
       headers: { 'Access-Control-Allow-Origin': '*' },
-      body: JSON.stringify({ error: 'Method Not Allowed - POST only' }),
+      body: JSON.stringify({ error: 'Method Not Allowed - POST only' })
     };
   }
 
   try {
     const apiKey = process.env.PI_API_KEY;
     if (!apiKey) {
-      console.error('PI_API_KEY غير موجود في Environment Variables');
+      console.error('Missing PI_API_KEY');
       return {
         statusCode: 500,
         headers: { 'Access-Control-Allow-Origin': '*' },
-        body: JSON.stringify({ error: 'خطأ في إعداد السيرفر (API Key مفقود)' }),
+        body: JSON.stringify({ error: 'Server configuration error' })
       };
     }
 
-    // Parse الـ body بأمان
-    let payload;
-    try {
-      payload = JSON.parse(event.body || '{}');
-    } catch {
-      return {
-        statusCode: 400,
-        headers: { 'Access-Control-Allow-Origin': '*' },
-        body: JSON.stringify({ error: 'البيانات المرسلة ليست JSON صالح' }),
-      };
-    }
+    const payload = JSON.parse(event.body || '{}');
 
-    // استخراج paymentId و txid (مرن لمعظم أنماط الـ frontend)
-    const paymentId =
+    const paymentId = 
       payload.paymentId ||
       payload.identifier ||
       payload.id ||
       payload.payment_id ||
-      payload?.payment?.identifier ||
       payload?.paymentDTO?.identifier ||
       payload?.paymentDTO?.paymentId ||
       payload?.paymentDTO?.id;
 
-    const txid =
+    const txid = 
       payload.txid ||
       payload.transactionId ||
       payload.txId ||
@@ -68,10 +55,9 @@ exports.handler = async (event) => {
         statusCode: 400,
         headers: { 'Access-Control-Allow-Origin': '*' },
         body: JSON.stringify({
-          error: 'مطلوب كلا الحقلين: paymentId و txid',
-          received_keys: Object.keys(payload),
-          tip: 'مثال: { "paymentId": "pay_abc123", "txid": "txn_xyz789" }',
-        }),
+          error: 'paymentId and txid are both required',
+          received_keys: Object.keys(payload)
+        })
       };
     }
 
@@ -80,30 +66,45 @@ exports.handler = async (event) => {
     const formData = new URLSearchParams();
     formData.append('txid', txid);
 
-    const response = await fetch(url, {
+    const resp = await fetch(url, {
       method: 'POST',
       headers: {
         'Authorization': `Key ${apiKey}`,
         'Content-Type': 'application/x-www-form-urlencoded',
-        'Accept': 'application/json',
+        'Accept': 'application/json'
       },
-      body: formData.toString(),
+      body: formData.toString()
     });
 
-    const responseText = await response.text();
-    let resultData;
-
-    try {
-      resultData = JSON.parse(responseText);
-    } catch {
-      resultData = { raw_response: responseText };
-    }
-
-    const statusCode = response.status;
-    const success = response.ok;
+    const text = await resp.text();
+    let data;
+    try { data = JSON.parse(text); } catch { data = { raw: text }; }
 
     return {
-      statusCode,
+      statusCode: resp.status,
+      headers: {
+        'Access-Control-Allow-Origin': '*',
+        'Content-Type': 'application/json'
+      },
+      body: JSON.stringify({
+        success: resp.ok,
+        status: resp.status,
+        pi_response: data
+      })
+    };
+
+  } catch (err) {
+    console.error('pi-complete error:', err);
+    return {
+      statusCode: 500,
+      headers: { 'Access-Control-Allow-Origin': '*' },
+      body: JSON.stringify({
+        error: 'Internal server error',
+        message: err.message || 'Unknown error'
+      })
+    };
+  }
+};      statusCode,
       headers: {
         'Access-Control-Allow-Origin': '*',
         'Content-Type': 'application/json',
