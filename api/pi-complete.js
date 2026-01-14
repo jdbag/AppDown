@@ -1,47 +1,87 @@
-// api/pi-complete.js
-// Serverless function لإكمال دفع Pi Network (Server-Side Completion)
+/**
+ * api/pi-complete.js
+ * Server-Side Completion لـ Pi Network
+ * يُستدعى بعد onReadyForServerCompletion(paymentId, txid)
+ * يرسل txid إلى Pi لإغلاق الدفع وتأكيد النجاح
+ */
 
-export default async function handler(req, res) {
-  // معالجة CORS (مهم جداً للاتصال من الـ frontend)
-  res.setHeader('Access-Control-Allow-Origin', '*');
-  res.setHeader('Access-Control-Allow-Methods', 'POST, OPTIONS');
-  res.setHeader('Access-Control-Allow-Headers', 'Content-Type');
-
-  if (req.method === 'OPTIONS') {
-    return res.status(200).end();
+exports.handler = async (event) => {
+  // ── CORS Preflight
+  if (event.httpMethod === 'OPTIONS') {
+    return {
+      statusCode: 200,
+      headers: {
+        'Access-Control-Allow-Origin': '*',
+        'Access-Control-Allow-Headers': 'Content-Type, Authorization, Accept',
+        'Access-Control-Allow-Methods': 'POST, OPTIONS',
+        'Access-Control-Max-Age': '86400',
+      },
+      body: '',
+    };
   }
 
-  if (req.method !== 'POST') {
-    return res.status(405).json({ error: 'الطريقة غير مسموحة - استخدم POST فقط' });
-  }
-
-  const apiKey = process.env.PI_API_KEY;
-  if (!apiKey) {
-    console.error('PI_API_KEY غير موجود في المتغيرات البيئية');
-    return res.status(500).json({ error: 'خطأ في إعداد السيرفر' });
-  }
-
-  const body = req.body || {};
-  let paymentId = body.paymentId || body.identifier || body.id || body.payment_id;
-  let txid = body.txid || body.transactionId || body.txId;
-
-  // دعم حالات إضافية شائعة
-  if (!paymentId && body.paymentDTO) {
-    paymentId = body.paymentDTO.identifier || body.paymentDTO.paymentId || body.paymentDTO.id;
-  }
-  if (!txid && body.paymentDTO?.transaction) {
-    txid = body.paymentDTO.transaction.txid;
-  }
-
-  if (!paymentId || !txid) {
-    return res.status(400).json({
-      error: 'مطلوب: paymentId و txid',
-      received: Object.keys(body),
-      مثال: { paymentId: 'pay_abc123', txid: 'txn_xyz789' }
-    });
+  // فقط POST مسموح
+  if (event.httpMethod !== 'POST') {
+    return {
+      statusCode: 405,
+      headers: { 'Access-Control-Allow-Origin': '*' },
+      body: JSON.stringify({ error: 'Method Not Allowed - POST only' }),
+    };
   }
 
   try {
+    const apiKey = process.env.PI_API_KEY;
+    if (!apiKey) {
+      console.error('PI_API_KEY غير موجود في Environment Variables');
+      return {
+        statusCode: 500,
+        headers: { 'Access-Control-Allow-Origin': '*' },
+        body: JSON.stringify({ error: 'خطأ في إعداد السيرفر (API Key مفقود)' }),
+      };
+    }
+
+    // Parse الـ body بأمان
+    let payload;
+    try {
+      payload = JSON.parse(event.body || '{}');
+    } catch {
+      return {
+        statusCode: 400,
+        headers: { 'Access-Control-Allow-Origin': '*' },
+        body: JSON.stringify({ error: 'البيانات المرسلة ليست JSON صالح' }),
+      };
+    }
+
+    // استخراج paymentId و txid (مرن لمعظم أنماط الـ frontend)
+    const paymentId =
+      payload.paymentId ||
+      payload.identifier ||
+      payload.id ||
+      payload.payment_id ||
+      payload?.payment?.identifier ||
+      payload?.paymentDTO?.identifier ||
+      payload?.paymentDTO?.paymentId ||
+      payload?.paymentDTO?.id;
+
+    const txid =
+      payload.txid ||
+      payload.transactionId ||
+      payload.txId ||
+      payload?.paymentDTO?.txid ||
+      payload?.paymentDTO?.transaction?.txid;
+
+    if (!paymentId || !txid) {
+      return {
+        statusCode: 400,
+        headers: { 'Access-Control-Allow-Origin': '*' },
+        body: JSON.stringify({
+          error: 'مطلوب كلا الحقلين: paymentId و txid',
+          received_keys: Object.keys(payload),
+          tip: 'مثال: { "paymentId": "pay_abc123", "txid": "txn_xyz789" }',
+        }),
+      };
+    }
+
     const url = `https://api.minepi.com/v2/payments/${encodeURIComponent(paymentId)}/complete`;
 
     const formData = new URLSearchParams();
@@ -52,38 +92,46 @@ export default async function handler(req, res) {
       headers: {
         'Authorization': `Key ${apiKey}`,
         'Content-Type': 'application/x-www-form-urlencoded',
-        'Accept': 'application/json'
+        'Accept': 'application/json',
       },
-      body: formData.toString()
+      body: formData.toString(),
     });
 
-    const text = await response.text();
-    let data;
+    const responseText = await response.text();
+    let resultData;
+
     try {
-      data = JSON.parse(text);
+      resultData = JSON.parse(responseText);
     } catch {
-      data = { responseText: text };
+      resultData = { raw_response: responseText };
     }
 
-    if (response.ok) {
-      return res.status(200).json({
-        success: true,
-        message: 'تم إكمال الدفع بنجاح',
-        piData: data
-      });
-    } else {
-      return res.status(response.status).json({
-        success: false,
-        error: 'فشل إكمال الدفع من Pi',
-        status: response.status,
-        piData: data
-      });
-    }
+    const statusCode = response.status;
+    const success = response.ok;
+
+    return {
+      statusCode,
+      headers: {
+        'Access-Control-Allow-Origin': '*',
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify({
+        success,
+        status: statusCode,
+        message: success ? 'تم إكمال الدفع بنجاح' : 'فشل إكمال الدفع',
+        pi_response: resultData,
+      }),
+    };
   } catch (error) {
-    console.error('خطأ في إكمال الدفع:', error.message);
-    return res.status(500).json({
-      error: 'خطأ داخلي أثناء الاتصال بـ Pi API',
-      message: error.message
-    });
+    console.error('[pi-complete] خطأ:', error.message);
+
+    return {
+      statusCode: 500,
+      headers: { 'Access-Control-Allow-Origin': '*' },
+      body: JSON.stringify({
+        error: 'خطأ داخلي أثناء إكمال الدفع',
+        message: error.message || 'غير معروف',
+      }),
+    };
   }
-}
+};
