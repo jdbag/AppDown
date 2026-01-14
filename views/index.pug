@@ -5,16 +5,17 @@ html(lang="ar" dir="rtl")
     meta(name="viewport" content="width=device-width, initial-scale=1.0")
     title AppDown - متجر يدعم الدفع بـ Pi Network
 
-    // أنماط أساسية بسيطة ومتجاوبة
+    // أنماط أساسية بسيطة ومتجاوبة (inline لتجنب ملف css منفصل في البداية)
     style.
       body {
-        font-family: system-ui, -apple-system, sans-serif;
+        font-family: system-ui, -apple-system, BlinkMacSystemFont, sans-serif;
         margin: 0;
         padding: 20px;
         background: #f8f9fa;
         color: #333;
         direction: rtl;
         text-align: center;
+        line-height: 1.6;
       }
       .container {
         max-width: 500px;
@@ -26,13 +27,14 @@ html(lang="ar" dir="rtl")
       }
       h1 {
         color: #6f42c1;
-        margin-bottom: 8px;
+        margin-bottom: 12px;
       }
       .product {
         margin: 30px 0;
         padding: 20px;
         background: #f8f5ff;
         border-radius: 12px;
+        border: 1px solid #e0d4ff;
       }
       button {
         background: #6f42c1;
@@ -43,11 +45,13 @@ html(lang="ar" dir="rtl")
         border-radius: 12px;
         cursor: pointer;
         transition: all 0.25s ease;
-        margin-top: 15px;
+        margin-top: 20px;
+        font-weight: 500;
       }
       button:hover:not(:disabled) {
         background: #5a32a3;
         transform: translateY(-2px);
+        box-shadow: 0 4px 12px rgba(111,66,193,0.3);
       }
       button:disabled {
         background: #ccc;
@@ -57,6 +61,12 @@ html(lang="ar" dir="rtl")
         color: #666;
         font-size: 0.95rem;
         margin-top: 15px;
+      }
+      .note {
+        margin-top: 40px;
+        color: #777;
+        font-size: 0.9rem;
+        line-height: 1.5;
       }
 
   body
@@ -68,13 +78,19 @@ html(lang="ar" dir="rtl")
       .product
         h3 منتج اختباري
         p السعر: 10 π
-        small (اختبار في وضع Sandbox)
+        small (اختبار في وضع Sandbox – Pi تجريبي فقط)
 
       button#pi-pay-button(disabled type="button" onclick="startPiPayment(10, 'اختبار شراء من AppDown')")
         ادفع 10 π
 
       p#status حالة: جاري الاتصال بمحفظة Pi...
 
-      // رسالة مساعدة للمستخدم
-      p.small style="margin-top:40px; color:#777; font-size:0.9rem;"
-        ملاحظة: يجب فتح الموقع داخل ت
+      p.note
+        ملاحظة مهمة: يجب فتح هذا الموقع داخل تطبيق <strong>Pi Browser</strong> ليعمل الدفع بشكل صحيح.<br>
+        إذا لم يظهر الزر بعد ثوانٍ، تأكد من <strong>Authorize Sandbox</strong> من داخل تطبيق Pi (Pi Utilities → Authorize Sandbox).
+
+    // تحميل مكتبة Pi SDK الرسمية أولاً (مهم جداً)
+    script(src="https://sdk.minepi.com/pi-sdk.js")
+
+    // تحميل السكريبت الخاص بالدفع (تأكد من المسار الصحيح)
+    script(src="/js/pi-payment.js")
