@@ -1,0 +1,22 @@
+[build]
+  publish = "."
+  functions = "vercel/functions"
+
+[functions]
+  node_bundler = "esbuild"
+
+[[redirects]]
+  from = "/payment/approve"
+  to = "/.vercel/functions/payment-approve"
+  status = 200
+
+[[redirects]]
+  from = "/payment/complete"
+  to = "/.vercel/functions/payment-complete"
+  status = 200
+
+[[redirects]]
+  from = "/payment/cancel"
+  to = "/.vercel/functions/payment-cancel"
+  status = 200
+
