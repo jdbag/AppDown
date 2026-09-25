@@ -1,0 +1,65 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>اختبار App to User</title>
+<script src="https://sdk.minepi.com/pi-sdk.js"></script>
+<style>
+  body { text-align: center; font-family: sans-serif; padding: 20px; }
+  .container { width: min(600px, 100%); margin: auto; }
+  button { margin-top: 20px; width: 100%; padding: 14px; font-size: 18px; border-radius: 14px; border: none; color: #fff; background: linear-gradient(135deg, #38bdf8, #a78bfa); cursor: pointer; }
+  #status { margin-top: 16px; padding: 14px; border-radius: 14px; background: #f8fafc; border: 1px solid #ccc; min-height: 52px; white-space: pre-wrap; text-align: right; }
+</style>
+</head>
+<body>
+<div class="container">
+  <h2>اختبار دفع App → User</h2>
+  <p>سجل دخولك بحساب Pi الحالي واضغط الزر باش تستلم 0.01 Pi تجريبي من التطبيق.</p>
+  <button id="btn" onclick="run()">ادفع ليا (اختبار)</button>
+  <div id="status">جاهز</div>
+</div>
+
+<script>
+Pi.init({ version: "2.0" });
+
+function setStatus(msg) { document.getElementById("status").innerText = msg; }
+
+async function run() {
+  const btn = document.getElementById("btn");
+  btn.disabled = true;
+  try {
+    setStatus("جاري تسجيل الدخول...");
+    // "payments" scope not required for a payout target, "username" is enough
+    // to get the uid, but Pi.authenticate may require an onIncompletePaymentFound
+    // callback regardless.
+    const auth = await Pi.authenticate(["username", "payments"], async (payment) => {
+      console.log("incomplete payment found", payment);
+    });
+
+    const uid = auth?.user?.uid;
+    const username = auth?.user?.username;
+    if (!uid) throw new Error("تعذر الحصول على uid");
+
+    setStatus(`مسجل دخول: ${username}\nuid: ${uid}\nجاري إرسال الدفعة...`);
+
+    const resp = await fetch("/api/payout", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ uid, amount: 0.01, memo: "Test payout" }),
+    });
+
+    const data = await resp.json();
+    if (!resp.ok) throw new Error(data.error || "فشل الطلب");
+
+    setStatus(`✅ نجحت العملية لـ ${username}\nuid: ${uid}\ntxid: ${data.txid || "-"}`);
+  } catch (e) {
+    console.error(e);
+    setStatus("❌ خطأ: " + (e.message || e));
+  } finally {
+    btn.disabled = false;
+  }
+}
+</script>
+</body>
+</html>
