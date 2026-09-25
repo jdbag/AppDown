@@ -1,0 +1,5 @@
+# Your index.html already calls /api/payment-approve, /api/payment-complete
+# and /api/payment-cancel directly, and Vercel auto-detects any file inside
+# /api as a serverless function — so no [[redirects]] or [build] block is
+# needed at all. An empty/minimal vercel.toml (or deleting the file) avoids
+# the "should NOT have additional property `from`" build error.
