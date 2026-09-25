@@ -1,0 +1,8 @@
+{
+  "name": "appdown0",
+  "version": "1.0.0",
+  "private": true,
+  "dependencies": {
+    "stellar-sdk": "^11.3.0"
+  }
+}
